@@ -6,4 +6,4 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppUser
         fields = ['spotify_id', 'access_token', 'refresh_token', 'token_expiry', 'favourite_genres']
-        read_only_fields = ['spotify_id']
+        read_only_fields = ['spotify_id', 'access_token', 'refresh_token', 'token_expiry']

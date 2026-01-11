@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from .models import AppUser 
 import secrets
+from django.shortcuts import redirect
+
 
 class SpotifyAuth:
     AUTH_URL = "https://accounts.spotify.com/authorize"
@@ -46,7 +48,7 @@ class SpotifyAuth:
         if response.status_code != 200:
             raise Exception("Failed to fetch Spotify profile")
         return response.json()
-    #authenticate user using the authorization code, create or login user in our system
+    #authenticate user using the authorization code, create or login user in the system
     @classmethod
     def authenticate_user(cls, code):
         tokens = cls.exchange_code_for_tokens(code)
@@ -63,13 +65,11 @@ class SpotifyAuth:
     #refresh the access token using the refresh token
     @classmethod
     def refresh_access_token(cls, refresh_token):
-        state=secrets.token_urlsafe(20)
         payload = {
             "grant_type": "refresh_token",
             "refresh_token": refresh_token,
             "client_id": settings.SPOTIFY_CLIENT_ID,
             "client_secret": settings.SPOTIFY_CLIENT_SECRET,
-            "state": state,
         }
         response = requests.post(cls.TOKEN_URL, data=payload)
         if response.status_code != 200:
@@ -84,4 +84,34 @@ class SpotifyAuth:
             user.token_expiry = datetime.now() + timedelta(seconds=tokens["expires_in"])
             user.save()
         return user.access_token
+    #gathers user's favourite genres from spotify
+    @classmethod
+    def fetch_user_favourite_artists(cls, user):
+        access_token = cls.get_valid_access_token(user)
+        headers = {"Authorization": f"Bearer {access_token}"}
+        response = requests.get(f"{cls.PROFILE_URL}/top/artists", headers=headers, params={"limit":50, "time_range":"medium_term"})
+        if response.status_code != 200:
+            raise Exception("Failed to fetch user's top artists")
+        return response.json()['items']
+    #gather a user's favourite genres from their top artists
+    @classmethod
+    def fetch_user_favourite_genres(cls, user):
+        artists = cls.fetch_user_favourite_artists(user)
+        genre_count = {}
+        for artist in artists:
+            for genre in artist.get('genres', []):
+                genre_count[genre] = genre_count.get(genre, 0) + 1
+        sorted_genres = sorted(genre_count.items(), key=lambda x: x[1], reverse=True)
+        favourite_genres = [genre for genre, count in sorted_genres[:10]]
+        user.favourite_genres = favourite_genres
+        user.save()
+        return favourite_genres
+    
+class AppToken:
+    @classmethod
+    def refresh_token(cls,refresh):
+         response=redirect("http://localhost:5173/")
+         response.set_cookie("refresh", str(refresh), httponly=True,secure=True,samesite='None',max_age=60*60*24*30)
+         response.set_cookie("access", str(refresh.access_token), httponly=True,secure=True,samesite='None',max_age=60*15)
+         return response
 

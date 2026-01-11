@@ -4,3 +4,5 @@ dotenv
 requests
 djangorestframework-simplejwt
 python-decouple
+django-cryptography
+django-cors-headers
