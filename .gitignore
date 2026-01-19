@@ -1,2 +1,8 @@
 .venv
 .env
+debug.log
+_pycache_/
+*.pyc
+db.sqlite3
+.gitignore
+
