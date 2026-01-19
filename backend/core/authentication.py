@@ -9,6 +9,7 @@ class JWTcookieAuthentication(JWTAuthentication):
             return None
         try:
             validated_token = self.get_validated_token(raw_token)
+
             print("Validated token")
         except exceptions.AuthenticationFailed as e:
             raise exceptions.AuthenticationFailed('Invalid token') from e

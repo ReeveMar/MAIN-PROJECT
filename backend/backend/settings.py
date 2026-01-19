@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     "corsheaders",
 ]
+<<<<<<< HEAD
 # settings.py
 
 LOGGING = {
@@ -74,6 +75,7 @@ LOGGING = {
         "myapp": {"handlers": ["console", "debug_file"], "level": "DEBUG", "propagate": False},
     },
 }
+
 
 
 MIDDLEWARE = [

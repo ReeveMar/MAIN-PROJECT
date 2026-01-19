@@ -127,6 +127,10 @@ class AppUserUtils:
     @classmethod
     def get_user_stats(cls, user):
         favourite_genres, favourite_artists = SpotifyAuth.fetch_user_favourite_genres(user)
+        return {
+            "favourite_genres": favourite_genres,
+            "favourite_artists": favourite_artists
+        }
     
 
 

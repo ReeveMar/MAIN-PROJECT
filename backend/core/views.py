@@ -12,8 +12,8 @@ class SpotifyLoginView(APIView):
     def get(self, request):
         auth_url= SpotifyAuth.get_auth_url(request)
         return redirect(auth_url)
-        
-    
+
+
 #handles callback
 class SpotifyCallbackView(APIView):
     permission_classes = []
@@ -30,7 +30,7 @@ class SpotifyCallbackView(APIView):
             user = SpotifyAuth.authenticate_user(code)
             refresh = RefreshToken.for_user(user)
             return AppToken.refresh_token(refresh)
-        
+
         except Exception as e:
             return Response({"error": str(e)}, status=400)
 #handles token refreshing
@@ -42,8 +42,8 @@ class RefreshTokenView(APIView):
         try:
             token=RefreshToken(refresh_token)
             return AppToken.refresh_token(token)
-          
-        
+
+
         except Exception:
             return Response({"error": "Invalid refresh token"}, status=400)
 #directs to home
@@ -74,4 +74,3 @@ class LogoutView(APIView):
             return Response({"success": "Logged out successfully"})
         except Exception:
             return Response({"error": "Invalid token"}, status=400)
-
